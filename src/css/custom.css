@@ -1,0 +1,184 @@
+/**
+ * Physical AI & Robotics Textbook - Custom Styles
+ */
+
+/* Robot/AI Theme Colors */
+:root {
+  --ifm-color-primary: #0066cc;
+  --ifm-color-primary-dark: #0052a3;
+  --ifm-color-primary-darker: #004d9a;
+  --ifm-color-primary-darkest: #004080;
+  --ifm-color-primary-light: #1a80e6;
+  --ifm-color-primary-lighter: #338ce6;
+  --ifm-color-primary-lightest: #66aaff;
+  --ifm-code-font-size: 95%;
+  --docusaurus-highlighted-code-line-bg: rgba(0, 102, 204, 0.1);
+  --ifm-navbar-background-color: #f8f9fa;
+  --ifm-background-color: #ffffff;
+  --ifm-background-surface-color: #ffffff;
+  --ifm-font-family-base: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+}
+
+/* Dark Mode */
+[data-theme='dark'] {
+  --ifm-color-primary: #00aaff;
+  --ifm-color-primary-dark: #0099e6;
+  --ifm-color-primary-darker: #0092d9;
+  --ifm-color-primary-darkest: #007ab3;
+  --ifm-color-primary-light: #33bbff;
+  --ifm-color-primary-lighter: #66ccff;
+  --ifm-color-primary-lightest: #99ddff;
+  --docusaurus-highlighted-code-line-bg: rgba(0, 170, 255, 0.2);
+  --ifm-navbar-background-color: #1a1a2e;
+  --ifm-background-color: #0f0f1a;
+  --ifm-background-surface-color: #1a1a2e;
+}
+
+/* Navbar Styling */
+.navbar {
+  border-bottom: 2px solid var(--ifm-color-primary);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.navbar__title {
+  font-weight: 700;
+  font-size: 1.2rem;
+  background: linear-gradient(135deg, var(--ifm-color-primary), var(--ifm-color-primary-light));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Sidebar Styling */
+.menu__link {
+  border-radius: 6px;
+  margin: 2px 4px;
+  transition: all 0.2s ease;
+}
+
+.menu__link:hover {
+  background-color: var(--ifm-color-primary-lightest);
+  color: var(--ifm-color-primary-darkest);
+}
+
+.menu__link--active {
+  background-color: var(--ifm-color-primary);
+  color: white;
+  font-weight: 600;
+}
+
+/* Card Styling for Admonitions */
+.admonition {
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Hero Section */
+.hero {
+  background: linear-gradient(135deg, var(--ifm-background-color) 0%, var(--ifm-color-primary-lightest) 100%);
+  padding: 3rem 1rem;
+  border-radius: 12px;
+  margin-bottom: 2rem;
+}
+
+/* Table Styling */
+table {
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+table th {
+  background-color: var(--ifm-color-primary);
+  color: white;
+  font-weight: 600;
+}
+
+/* Code Blocks */
+.prism-code {
+  border-radius: 8px;
+  border: 1px solid var(--ifm-color-primary-lightest);
+}
+
+/* Heading Enhancements */
+h1 {
+  color: var(--ifm-color-primary);
+  font-weight: 700;
+  border-bottom: 2px solid var(--ifm-color-primary-lightest);
+  padding-bottom: 0.5rem;
+}
+
+h2 {
+  color: var(--ifm-color-primary-dark);
+  font-weight: 600;
+  margin-top: 2rem;
+}
+
+h3 {
+  color: var(--m-color-primary-darker);
+  font-weight: 600;
+}
+
+/* Link Styling */
+a {
+  color: var(--ifm-color-primary);
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+a:hover {
+  color: var(--ifm-color-primary-dark);
+  text-decoration: underline;
+}
+
+/* Footer */
+.footer {
+  background: linear-gradient(135deg, #1a1a2e 0%, #0f0f1a 100%);
+  border-top: 3px solid var(--ifm-color-primary);
+}
+
+/* Reading Time */
+.readingTime {
+  color: var(--ifm-color-primary);
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+/* Smooth scrolling */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--ifm-background-color);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--ifm-color-primary);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--ifm-color-primary-dark);
+}
+
+/* Preface heading - small and single line */
+.markdown h1 + sup {
+  display: block;
+  font-size: 1.1rem;
+  font-weight: 500;
+  color: var(--ifm-color-primary-light);
+  margin-top: -0.5rem;
+  margin-bottom: 1rem;
+}
+
+.markdown h1 + sup + p {
+  font-size: 0.9rem;
+  color: var(--ifm-color-primary-dark);
+}
