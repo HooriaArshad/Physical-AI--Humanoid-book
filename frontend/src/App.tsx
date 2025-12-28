@@ -1,25 +1,18 @@
-import { useState } from 'react'
 import './App.css'
+import Chatbot from './components/Chatbot'
 
 function App() {
-  const [count, setCount] = useState(0)
-
   return (
     <>
       <div className="container">
         <h1>Physical AI & Humanoid Robotics</h1>
-        <h2>Frontend Dashboard</h2>
-        
+        <h2>Interactive Textbook Assistant</h2>
+
         <div className="card">
-          <h3>Welcome to Docasuros Frontend</h3>
+          <h3>Welcome to the AI-Powered Textbook</h3>
           <p>Created by: Hooria Arshad</p>
-          
-          <div className="counter">
-            <button onClick={() => setCount((count) => count + 1)}>
-              Count is {count}
-            </button>
-          </div>
-          
+          <p>Ask questions about Physical AI, Humanoid Robotics, ROS 2, and more!</p>
+
           <div className="links">
             <a href="https://github.com/HooriaArshad" target="_blank" rel="noopener noreferrer">
               GitHub
@@ -32,6 +25,8 @@ function App() {
             </a>
           </div>
         </div>
+
+        <Chatbot />
       </div>
     </>
   )
