@@ -46,6 +46,108 @@ This project is an **interactive textbook** that introduces students and develop
 
 ---
 
+## 📖 Book Chapters
+
+### Preface: The Future is Embodied
+Physical AI marks the convergence of artificial intelligence and robotics — where digital intelligence steps into the physical world.
+
+**Reading Time**: ~5 minutes
+
+---
+
+### Chapter 1: Introduction to Physical AI
+Learn about AI systems that interact with the physical world through embodied agents like robots.
+
+**Key Topics**:
+- What is Physical AI and why it matters
+- Core components: Perception, Reasoning, Actuation
+- The Physical AI Stack (from AI/ML to hardware)
+- Challenges: Sim-to-Real gap, Safety, Generalization
+- Recent breakthroughs: VLA models, Foundation Models, End-to-End Learning
+
+**Reading Time**: ~20 minutes
+
+---
+
+### Chapter 2: Basics of Humanoid Robotics
+Explore humanoid robot design, actuation, sensing, and control systems.
+
+**Key Topics**:
+- Why humanoid robots? (Environment compatibility, tool use)
+- Robot morphology and Degrees of Freedom (DoF)
+- Actuation technologies: Electric, Hydraulic, Pneumatic, Series Elastic
+- Bipedal locomotion: Static vs Dynamic walking, Zero Moment Point (ZMP)
+- Hand design and grasp planning
+- Notable robots: Atlas, Tesla Optimus, Figure 01, Digit
+
+**Reading Time**: ~25 minutes
+
+---
+
+### Chapter 3: ROS 2 Fundamentals
+Master the Robot Operating System 2, the middleware framework for modern robotics.
+
+**Key Topics**:
+- ROS 2 core concepts: Nodes, Topics, Services, Actions
+- Publish/subscribe pattern for sensor data
+- Request/response for synchronous operations
+- Creating publishers and subscribers in Python
+- Common ROS 2 tools and commands
+
+**Reading Time**: ~30 minutes
+
+---
+
+### Chapter 4: Digital Twin Simulation
+Learn how to test and train robots in virtual environments before real-world deployment.
+
+**Key Topics**:
+- What is a Digital Twin and why simulation matters
+- **Gazebo Simulator**: Open-source, ROS 2 integrated
+  - Realistic physics, sensor simulation, plugin system
+- **NVIDIA Isaac Sim**: Photorealistic, AI-powered
+  - RTX rendering, PhysX physics, domain randomization
+- Sim-to-Real transfer techniques
+- Bridging the simulation-reality gap
+
+**Reading Time**: ~25 minutes
+
+---
+
+### Chapter 5: Vision-Language-Action Systems
+Discover how AI models understand instructions and control robots through natural language.
+
+**Key Topics**:
+- What are VLA systems? (Vision + Language + Action)
+- Architecture: Vision encoder → Language model → Action decoder
+- Key models: RT-1, RT-2, PaLM-E, Open X-Embodiment
+- Training approaches: Behavior cloning, RL, Pre-training + Fine-tuning
+- Challenges: Data efficiency, long-horizon tasks, safety
+- Practical deployment examples
+
+**Reading Time**: ~25 minutes
+
+---
+
+### Chapter 6: Capstone Project
+Build an end-to-end AI-robot pipeline that integrates all concepts from previous chapters.
+
+**Project Goal**: Create a system where a robot arm picks and places objects based on natural language instructions.
+
+**Components**:
+- Perception: RGB-D camera + object detection (YOLOv8)
+- Planning: MoveIt 2 for motion planning + grasp planning
+- Control: ROS 2 nodes + joint trajectory controller
+- Simulation first: Test in Gazebo with domain randomization
+
+**Reading Time**: ~20 minutes
+
+---
+
+**Total Reading Time**: 145-170 minutes
+
+---
+
 ## ✨ Features
 
 ### 📖 Interactive Textbook (Docusaurus)
