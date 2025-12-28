@@ -1,0 +1,303 @@
+openapi: 3.0.3
+info:
+  title: Textbook RAG API
+  description: |-
+    RESTful API for AI-native textbook chatbot. Provides question-answering
+    functionality grounded exclusively in textbook content.
+
+    **Architecture**: FastAPI backend with sentence-transformers embeddings,
+    Qdrant vector search, and Neon PostgreSQL metadata storage.
+
+    **Free-Tier Constraints**: Qdrant Cloud 1GB, Neon 0.5GB, hosted on Render/Railway free tier
+  version: 1.0.0
+  contact:
+    name: Physical AI Textbook Project
+    url: https://github.com/<username>/docasuros-book
+
+servers:
+  - url: http://localhost:8000
+    description: Local development
+  - url: https://textbook-rag.onrender.com
+    description: Production (Render free tier)
+
+tags:
+  - name: query
+    description: Question answering operations
+  - name: health
+    description: System health monitoring
+
+paths:
+  /api/query:
+    post:
+      tags:
+        - query
+      summary: Submit question to RAG chatbot
+      description: |-
+        Accepts user question, generates embedding, retrieves relevant chunks
+        from textbook, and returns answer with citations.
+
+        **Rate Limit**: 10 requests per minute per IP
+        **Timeout**: 10 seconds
+        **Textbook-Only**: Answers ONLY from 6 textbook chapters
+      operationId: submitQuery
+      requestBody:
+        description: User question with optional context
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/QueryRequest'
+            examples:
+              simple_question:
+                summary: Simple question
+                value:
+                  question: "What is Physical AI?"
+              context_question:
+                summary: Question with selected text
+                value:
+                  question: "Tell me more about sensor fusion"
+                  context: "sensor fusion"
+      responses:
+        '200':
+          description: Successful response with answer and citations
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/QueryResponse'
+              examples:
+                success:
+                  summary: Successful answer
+                  value:
+                    answer: "Physical AI refers to artificial intelligence systems that interact with the physical world through embodied agents like robots. It combines perception, reasoning, and action in real-world environments."
+                    citations:
+                      - chapter: "Chapter 1: Introduction to Physical AI"
+                        section: "What is Physical AI?"
+                        url: "/chapters/01-physical-ai#what-is-physical-ai"
+                    confidence: 0.87
+                    latency_ms: 1240
+        '400':
+          description: Bad request (empty question, too long, etc.)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                error: "Question text is required"
+                code: "INVALID_REQUEST"
+        '429':
+          description: Rate limit exceeded
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                error: "Rate limit exceeded. Try again in 60 seconds."
+                code: "RATE_LIMIT"
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                error: "Failed to generate embedding"
+                code: "INTERNAL_ERROR"
+        '503':
+          description: Service unavailable (Qdrant or Neon down)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                error: "AI assistant temporarily unavailable. Please try again later."
+                code: "SERVICE_UNAVAILABLE"
+
+  /api/health:
+    get:
+      tags:
+        - health
+      summary: Health check endpoint
+      description: |-
+        Returns system health status including backend, Qdrant, and Neon connectivity.
+        Used by hosting platform for uptime monitoring.
+      operationId: healthCheck
+      responses:
+        '200':
+          description: System is healthy
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthResponse'
+              example:
+                status: "healthy"
+                timestamp: "2025-12-26T10:30:00Z"
+                services:
+                  embedding_model: "loaded"
+                  qdrant: "connected"
+                  neon: "connected"
+                version: "1.0.0"
+        '503':
+          description: System is unhealthy
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthResponse'
+              example:
+                status: "unhealthy"
+                timestamp: "2025-12-26T10:30:00Z"
+                services:
+                  embedding_model: "loaded"
+                  qdrant: "disconnected"
+                  neon: "connected"
+                version: "1.0.0"
+
+components:
+  schemas:
+    QueryRequest:
+      type: object
+      required:
+        - question
+      properties:
+        question:
+          type: string
+          minLength: 3
+          maxLength: 5000
+          description: User's question about textbook content
+          example: "How do I install ROS 2?"
+        context:
+          type: string
+          maxLength: 200
+          description: Optional selected text from chapter (for text-selection feature)
+          example: "sensor fusion"
+
+    QueryResponse:
+      type: object
+      required:
+        - answer
+        - citations
+        - confidence
+        - latency_ms
+      properties:
+        answer:
+          type: string
+          description: AI-generated answer grounded in textbook content
+          example: "ROS 2 can be installed on Ubuntu by following these steps: 1) Add the ROS 2 apt repository, 2) Install ros-humble-desktop, 3) Source the setup script."
+        citations:
+          type: array
+          description: References to specific textbook sections
+          minItems: 1
+          items:
+            $ref: '#/components/schemas/Citation'
+        confidence:
+          type: number
+          format: float
+          minimum: 0
+          maximum: 1
+          description: Average similarity score of retrieved chunks (0-1)
+          example: 0.87
+        latency_ms:
+          type: integer
+          description: Time taken to generate response (milliseconds)
+          example: 1240
+        out_of_scope:
+          type: boolean
+          description: True if question is outside textbook content
+          example: false
+
+    Citation:
+      type: object
+      required:
+        - chapter
+        - section
+        - url
+      properties:
+        chapter:
+          type: string
+          description: Chapter title
+          example: "Chapter 3: ROS 2 Fundamentals"
+        section:
+          type: string
+          description: Section heading
+          example: "Installation"
+        url:
+          type: string
+          format: uri
+          description: Relative URL to section in textbook
+          example: "/chapters/03-ros2-fundamentals#installation"
+
+    ErrorResponse:
+      type: object
+      required:
+        - error
+        - code
+      properties:
+        error:
+          type: string
+          description: Human-readable error message
+          example: "Question text is required"
+        code:
+          type: string
+          enum:
+            - INVALID_REQUEST
+            - RATE_LIMIT
+            - OUT_OF_SCOPE
+            - INTERNAL_ERROR
+            - SERVICE_UNAVAILABLE
+          description: Machine-readable error code
+          example: "INVALID_REQUEST"
+        details:
+          type: object
+          description: Optional additional context for debugging
+          additionalProperties: true
+
+    HealthResponse:
+      type: object
+      required:
+        - status
+        - timestamp
+        - services
+        - version
+      properties:
+        status:
+          type: string
+          enum:
+            - healthy
+            - unhealthy
+          description: Overall system health status
+          example: "healthy"
+        timestamp:
+          type: string
+          format: date-time
+          description: ISO 8601 timestamp of health check
+          example: "2025-12-26T10:30:00Z"
+        services:
+          type: object
+          description: Health status of individual services
+          properties:
+            embedding_model:
+              type: string
+              enum:
+                - loaded
+                - loading
+                - error
+              example: "loaded"
+            qdrant:
+              type: string
+              enum:
+                - connected
+                - disconnected
+              example: "connected"
+            neon:
+              type: string
+              enum:
+                - connected
+                - disconnected
+              example: "connected"
+        version:
+          type: string
+          description: API version
+          example: "1.0.0"
+
+  securitySchemes: {}
+
+security: []

@@ -1,0 +1,261 @@
+openapi: 3.0.3
+info:
+  title: Embeddings Service (Internal)
+  description: |-
+    Internal service for generating text embeddings using sentence-transformers.
+    Used by ingestion pipeline and RAG query flow. Not exposed to public API.
+
+    **Model**: all-MiniLM-L6-v2 (384 dimensions, CPU inference)
+    **Performance**: ~100ms per embedding on 4-core CPU
+  version: 1.0.0
+
+servers:
+  - url: http://localhost:8000/internal
+    description: Local development (internal endpoints)
+
+tags:
+  - name: embeddings
+    description: Embedding generation operations
+
+paths:
+  /internal/embed:
+    post:
+      tags:
+        - embeddings
+      summary: Generate embedding for text
+      description: |-
+        Generates 384-dimensional embedding vector for input text using
+        all-MiniLM-L6-v2 model. Used internally during ingestion and query processing.
+
+        **Note**: This endpoint is NOT exposed in public API (internal use only)
+      operationId: generateEmbedding
+      requestBody:
+        description: Text to embed
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EmbedRequest'
+            example:
+              text: "ROS 2 is a middleware framework for robot applications"
+      responses:
+        '200':
+          description: Successfully generated embedding
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EmbedResponse'
+              example:
+                vector: [0.123, -0.456, 0.789, "... (384 floats total)"]
+                model: "all-MiniLM-L6-v2"
+                dimensions: 384
+                latency_ms: 98
+        '400':
+          description: Invalid input (empty text, too long, etc.)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                error: "Text must not be empty"
+                code: "INVALID_INPUT"
+        '500':
+          description: Embedding generation failed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                error: "Model not loaded"
+                code: "MODEL_ERROR"
+
+  /internal/embed/batch:
+    post:
+      tags:
+        - embeddings
+      summary: Generate embeddings for multiple texts (batch)
+      description: |-
+        Generates embeddings for multiple text chunks in a single request.
+        Used during initial ingestion to process all chapter chunks efficiently.
+
+        **Batch Size Limit**: 100 texts per request
+        **Parallel Processing**: Automatically parallelized by sentence-transformers
+      operationId: generateBatchEmbeddings
+      requestBody:
+        description: Array of texts to embed
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BatchEmbedRequest'
+            example:
+              texts:
+                - "Physical AI combines perception and action"
+                - "Humanoid robots mimic human morphology"
+                - "ROS 2 provides middleware abstraction"
+      responses:
+        '200':
+          description: Successfully generated all embeddings
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BatchEmbedResponse'
+              example:
+                embeddings:
+                  - vector: [0.1, -0.2, 0.3, "..."]
+                    text: "Physical AI combines perception and action"
+                  - vector: [0.4, -0.5, 0.6, "..."]
+                    text: "Humanoid robots mimic human morphology"
+                model: "all-MiniLM-L6-v2"
+                dimensions: 384
+                count: 2
+                total_latency_ms: 187
+        '400':
+          description: Invalid batch (too many texts, empty array, etc.)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                error: "Batch size exceeds limit of 100"
+                code: "BATCH_TOO_LARGE"
+        '500':
+          description: Batch embedding generation failed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                error: "Failed to encode batch"
+                code: "MODEL_ERROR"
+
+components:
+  schemas:
+    EmbedRequest:
+      type: object
+      required:
+        - text
+      properties:
+        text:
+          type: string
+          minLength: 1
+          maxLength: 5000
+          description: Text to generate embedding for
+          example: "ROS 2 is a middleware framework"
+
+    EmbedResponse:
+      type: object
+      required:
+        - vector
+        - model
+        - dimensions
+        - latency_ms
+      properties:
+        vector:
+          type: array
+          description: 384-dimensional embedding vector
+          minItems: 384
+          maxItems: 384
+          items:
+            type: number
+            format: float
+          example: [0.123, -0.456, 0.789, "... (384 floats total)"]
+        model:
+          type: string
+          description: Model used for embedding
+          example: "all-MiniLM-L6-v2"
+        dimensions:
+          type: integer
+          description: Vector dimensionality
+          example: 384
+        latency_ms:
+          type: integer
+          description: Time taken to generate embedding (milliseconds)
+          example: 98
+
+    BatchEmbedRequest:
+      type: object
+      required:
+        - texts
+      properties:
+        texts:
+          type: array
+          description: Array of texts to embed
+          minItems: 1
+          maxItems: 100
+          items:
+            type: string
+            minLength: 1
+            maxLength: 5000
+          example:
+            - "Physical AI combines perception and action"
+            - "Humanoid robots mimic human morphology"
+
+    BatchEmbedResponse:
+      type: object
+      required:
+        - embeddings
+        - model
+        - dimensions
+        - count
+        - total_latency_ms
+      properties:
+        embeddings:
+          type: array
+          description: Array of embeddings (same order as input texts)
+          items:
+            type: object
+            required:
+              - vector
+              - text
+            properties:
+              vector:
+                type: array
+                description: 384-dimensional embedding vector
+                minItems: 384
+                maxItems: 384
+                items:
+                  type: number
+                  format: float
+              text:
+                type: string
+                description: Original text (for reference)
+        model:
+          type: string
+          description: Model used for all embeddings
+          example: "all-MiniLM-L6-v2"
+        dimensions:
+          type: integer
+          description: Vector dimensionality
+          example: 384
+        count:
+          type: integer
+          description: Number of embeddings generated
+          example: 50
+        total_latency_ms:
+          type: integer
+          description: Total time for batch processing (milliseconds)
+          example: 1245
+
+    ErrorResponse:
+      type: object
+      required:
+        - error
+        - code
+      properties:
+        error:
+          type: string
+          description: Human-readable error message
+          example: "Text must not be empty"
+        code:
+          type: string
+          enum:
+            - INVALID_INPUT
+            - BATCH_TOO_LARGE
+            - MODEL_ERROR
+          description: Machine-readable error code
+          example: "INVALID_INPUT"
+
+  securitySchemes: {}
+
+security: []
