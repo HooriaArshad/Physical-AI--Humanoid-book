@@ -7,16 +7,25 @@ interface Message {
   timestamp: Date
 }
 
+const SAMPLE_QUESTIONS = [
+  "What is Physical AI?",
+  "Explain ROS 2 nodes and topics",
+  "What are humanoid robot degrees of freedom?",
+  "Difference between Gazebo and Isaac Sim?",
+  "How do VLA models work?"
+]
+
 export default function Chatbot() {
   const [messages, setMessages] = useState<Message[]>([
     {
       role: 'assistant',
-      content: 'Hi! I\'m your Physical AI & Robotics textbook assistant. Ask me anything about the book!',
+      content: 'Hi! I\'m your Physical AI & Robotics textbook assistant by Hooria Arshad. Ask me anything about the book!\n\n📚 Topics I can help with:\n• Physical AI fundamentals\n• Humanoid Robotics\n• ROS 2\n• Digital Twin Simulation\n• Vision-Language-Action Systems\n• Capstone Projects',
       timestamp: new Date()
     }
   ])
   const [input, setInput] = useState('')
   const [isLoading, setIsLoading] = useState(false)
+  const [showSamples, setShowSamples] = useState(true)
   const messagesEndRef = useRef<HTMLDivElement>(null)
 
   const scrollToBottom = () => {
@@ -41,7 +50,8 @@ export default function Chatbot() {
     setIsLoading(true)
 
     try {
-      const response = await fetch('http://localhost:5000/api/chat', {
+      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000'
+      const response = await fetch(`${apiUrl}/api/chat`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -85,6 +95,7 @@ export default function Chatbot() {
       <div className="chatbot-header">
         <h2>📚 Textbook Assistant</h2>
         <p>Ask me about Physical AI & Humanoid Robotics</p>
+        <p className="author-credit">By Hooria Arshad</p>
       </div>
 
       <div className="chatbot-messages">

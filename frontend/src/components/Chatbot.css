@@ -1,5 +1,5 @@
 .chatbot-container {
-  max-width: 800px;
+  max-width: 100%;
   margin: 2rem auto;
   background: #1a1a1a;
   border-radius: 12px;
@@ -11,7 +11,7 @@
 
 .chatbot-header {
   padding: 1.5rem;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #646cff 0%, #535bf2 100%);
   border-radius: 12px 12px 0 0;
   color: white;
   text-align: center;
@@ -26,6 +26,14 @@
   margin: 0;
   opacity: 0.9;
   font-size: 0.9rem;
+}
+
+.chatbot-header .author-credit {
+  margin-top: 0.5rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  opacity: 1;
+  color: #ffd700;
 }
 
 .chatbot-messages {
@@ -81,7 +89,7 @@
 }
 
 .message.user .message-text {
-  background: #667eea;
+  background: #646cff;
   color: white;
 }
 
@@ -107,7 +115,7 @@
 .typing-indicator span {
   width: 8px;
   height: 8px;
-  background: #667eea;
+  background: #646cff;
   border-radius: 50%;
   animation: bounce 1.4s infinite ease-in-out both;
 }
@@ -151,12 +159,12 @@
 
 .chatbot-input textarea:focus {
   outline: none;
-  border-color: #667eea;
+  border-color: #646cff;
 }
 
 .chatbot-input button {
   padding: 0.75rem 1.5rem;
-  background: #667eea;
+  background: #646cff;
   border: none;
   border-radius: 8px;
   color: white;
@@ -166,7 +174,7 @@
 }
 
 .chatbot-input button:hover:not(:disabled) {
-  background: #5568d3;
+  background: #535bf2;
 }
 
 .chatbot-input button:disabled {
@@ -198,3 +206,4 @@
 .chatbot-messages::-webkit-scrollbar-thumb:hover {
   background: #555;
 }
+
